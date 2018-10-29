@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/ravraw/github_avatar_downloader/issues"
   },
-  "homepage": "https://github.com/ravraw/github_avatar_downloader#readme"
+  "homepage": "https://github.com/ravraw/github_avatar_downloader#readme",
+  "dependencies": {
+    "request": "^2.88.0"
+  }
 }
