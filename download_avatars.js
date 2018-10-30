@@ -2,25 +2,32 @@ var request = require('request');
 const fs = require('fs');
 const KEYS = require('./secrets');
 
+const [name, owner] = process.argv.slice(2);
+console.log(name, owner);
+
 console.log('Welcome to the GitHub Avatar Downloader!');
 
 function getRepoContributors(repoOwner, repoName, cb) {
-  var options = {
-    url:
-      'https://api.github.com/repos/' +
-      repoOwner +
-      '/' +
-      repoName +
-      '/contributors',
-    headers: {
-      'User-Agent': 'request',
-      Authorization: `token ${KEYS.GITHUB_TOKEN}`
-    }
-  };
-  request(options, function(err, res, body) {
-    let result = JSON.parse(body);
-    cb(err, result);
-  });
+  if (!repoOwner || !repoName) {
+    console.log('Please enter owner-name and repo-name');
+  } else {
+    var options = {
+      url:
+        'https://api.github.com/repos/' +
+        repoOwner +
+        '/' +
+        repoName +
+        '/contributors',
+      headers: {
+        'User-Agent': 'request',
+        Authorization: `token ${KEYS.GITHUB_TOKEN}`
+      }
+    };
+    request(options, function(err, res, body) {
+      let result = JSON.parse(body);
+      cb(err, result);
+    });
+  }
 }
 
 // get contributers and save avatar_url for each,
@@ -28,14 +35,14 @@ function getRepoContributors(repoOwner, repoName, cb) {
 const logContributers = (err, result) => {
   if (err) {
     console.log(err);
+  } else {
+    result.map(contributer => {
+      downloadImageByURL(
+        `${contributer.avatar_url}`,
+        `avatars/${contributer.login}.jpg`
+      );
+    });
   }
-  //console.log(result);
-  result.map(contributer => {
-    downloadImageByURL(
-      `${contributer.avatar_url}`,
-      `avatars/${contributer.login}.jpg`
-    );
-  });
 };
 
 // fetch all avatars using avatars_array links
@@ -56,4 +63,4 @@ const downloadImageByURL = (url, filePath) => {
     });
 };
 
-getRepoContributors('jquery', 'jquery', logContributers);
+getRepoContributors(name, owner, logContributers);
