@@ -1,32 +1,25 @@
 require('dotenv').config();
-//const dotenv = require('dotenv');
 const request = require('request');
 const fs = require('fs');
-//const KEYS = require('./secrets');
 
+// destructure inputs from user
 const [name, owner] = process.argv.slice(2);
-console.log(name, owner);
 
 console.log('Welcome to the GitHub Avatar Downloader!');
 
+// Main function
 function getRepoContributors(repoOwner, repoName, cb) {
-  if (repoOwner === undefined || !repoName === undefined) {
-    console.log('Please enter owner-name and repo-name');
+  if (repoOwner === undefined || repoName === undefined) {
+    console.error('Please enter owner-name and repo-name');
   } else {
     var options = {
-      url:
-        'https://api.github.com/repos/' +
-        repoOwner +
-        '/' +
-        repoName +
-        '/contributors',
+      url: `https://api.github.com/repos/${repoOwner}/${repoName}/contributors`,
       headers: {
         'User-Agent': 'request',
         Authorization: `token ${process.env.GITHUB_TOKEN}`
-        //Authorization: `token ${KEYS.GITHUB_TOKEN}`
       }
     };
-    request(options, function(err, res, body) {
+    request(options, (err, res, body) => {
       let result = JSON.parse(body);
       cb(err, result);
     });
@@ -57,13 +50,14 @@ const downloadImageByURL = (url, filePath) => {
       throw err;
     })
     .on('end', () => {
-      console.log('downloading image ....');
+      console.log(`downloading image to ${filePath}....`);
     })
     .pipe(fs.createWriteStream(filePath))
     // use finish event to print the last console.log
     .on('finish', () => {
-      console.log('Download complete.......');
+      console.log(`Download complete in ${filePath}...`);
     });
 };
 
+// call the function
 getRepoContributors(name, owner, logContributers);
